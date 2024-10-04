@@ -7,7 +7,8 @@ using Dapper;
 using MySqlConnector;
 using Newtonsoft.Json;
 using StackExchange.Redis;
-using web_performance.Model;
+using web_app_domain;
+using web_app_repository;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,6 +19,13 @@ namespace web_performance.Controllers
     public class ProdutoController : ControllerBase
     {
         private static ConnectionMultiplexer redis;
+        private readonly IProdutoRepository _repository;
+
+        public ProdutoController(IProdutoRepository repository)
+        {
+            _repository = repository;
+        }
+
         [HttpGet]
         public async Task<ActionResult> GetProdutos()
         {
@@ -33,27 +41,19 @@ namespace web_performance.Controllers
                 return Ok(user);
             }
 
-            string connectionString = "Server=localhost;Database=sys;User=root;Password=123;";
-            using var connection = new MySqlConnection(connectionString);
-            await connection.OpenAsync();
-            string query = "select id, nome, preco, quantidade_estoque, data_criacao from produtos;";
-
-            var produto = await connection.QueryAsync<Produto>(query);
-            string produtosJson = JsonConvert.SerializeObject(produto);
+            var produtos = await _repository.ListarProdutos();
+            string produtosJson = JsonConvert.SerializeObject(produtos);
             await db.StringSetAsync(key, produtosJson);
 
-            return Ok(produto);
+            return Ok(produtos);
         }
 
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Produto produto)
         {
-            string connectionString = "Server=localhost;Database=sys;User=root;Password=123;";
-            using var connection = new MySqlConnection(connectionString);
-            await connection.OpenAsync();
+            await _repository.SalvarProduto(produto);
 
-            string sql = "insert into produtos(nome, preco, quantidade_estoque, data_criacao) values(@nome, @preco, @quantidade_estoque, @data_criacao);";
-            await connection.ExecuteAsync(sql, produto);
+            await _repository.AtualizarProduto(produto);
 
             //apagar cache
             string key = "getprodutos";
@@ -67,12 +67,8 @@ namespace web_performance.Controllers
         [HttpPut]
         public async Task<ActionResult> Put([FromBody] Produto produto)
         {
-            string connectionString = "Server=localhost;Database=sys;User=root;Password=123;";
-            using var connection = new MySqlConnection(connectionString);
-            await connection.OpenAsync();
 
-            string sql = "update produtos\nset nome = @nome,\n\tpreco = @preco,\n\tquantidade_estoque = @quantidade_estoque,\n\tdata_criacao = @data_criacao\nwhere id = @id;";
-            await connection.ExecuteAsync(sql, produto);
+            await _repository.AtualizarProduto(produto);
 
             //apagar cache
             string key = "getprodutos";
@@ -86,12 +82,7 @@ namespace web_performance.Controllers
         [HttpDelete]
         public async Task<ActionResult> Delete(int id)
         {
-            string connectionString = "Server=localhost;Database=sys;User=root;Password=123;";
-            using var connection = new MySqlConnection(connectionString);
-            await connection.OpenAsync();
-
-            string sql = "delete from produtos where id = @id;";
-            await connection.ExecuteAsync(sql, new { id });
+            await _repository.RemoverProduto(id);
 
             //apagar cache
             string key = "getprodutos";

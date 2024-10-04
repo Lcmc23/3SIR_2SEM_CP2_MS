@@ -1,5 +1,5 @@
 ﻿using System;
-namespace web_performance.Model
+namespace web_app_domain
 {
 	public class Produto
 	{
