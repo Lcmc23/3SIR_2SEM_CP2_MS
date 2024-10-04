@@ -12,6 +12,7 @@ builder.Services.AddSwaggerGen();
 //Configurar injeção de dependência
 //Vocês vão esquecer
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
