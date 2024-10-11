@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
-using Microsoft.AspNetCore.Mvc;
-using MySqlConnector;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using web_app_domain;
@@ -30,23 +24,25 @@ namespace web_performance.Controllers
         public async Task<ActionResult> GetUsuario()
         {
 
-            string key = "getusuario";
-            redis = ConnectionMultiplexer.Connect("localhost:6379");
-            IDatabase db = redis.GetDatabase();
-            await db.KeyExpireAsync(key, TimeSpan.FromSeconds(10));
-            string user = await db.StringGetAsync(key);
+            //string key = "getusuario";
+            //redis = ConnectionMultiplexer.Connect("localhost:6379");
+            //IDatabase db = redis.GetDatabase();
+            //await db.KeyExpireAsync(key, TimeSpan.FromSeconds(10));
+            //string user = await db.StringGetAsync(key);
 
-            if (!string.IsNullOrEmpty(user))
-            {
-                return Ok(user);
-            }
-
-
+            //if (!string.IsNullOrEmpty(user))
+            //{
+            //    return Ok(user);
+            //}
 
             var usuarios = await _repository.ListarUsuarios();
-            string usuariosJson = JsonConvert.SerializeObject(usuarios);
-            await db.StringSetAsync(key, usuariosJson);
+            if (usuarios == null)
+            {
+                return NotFound();
+            }
 
+            string usuariosJson = JsonConvert.SerializeObject(usuarios);
+            //await db.StringSetAsync(key, usuariosJson);
             return Ok(usuarios);
         }
 
@@ -55,15 +51,15 @@ namespace web_performance.Controllers
         {
             await _repository.SalvarUsuario(usuario);
 
-            await _repository.AtualizarUsuario(usuario);
-
             //apagar cache
-            string key = "getusuario";
-            redis = ConnectionMultiplexer.Connect("localhost:6379");
-            IDatabase db = redis.GetDatabase();
-            await db.KeyDeleteAsync(key);
+            //string key = "getusuario";
+            //redis = ConnectionMultiplexer.Connect("localhost:6379");
+            //IDatabase db = redis.GetDatabase();
+            //await db.KeyDeleteAsync(key);
 
-            return Ok();
+
+
+            return Ok(new {mensagem = "Criado com sucesso"});
         }
 
         [HttpPut]

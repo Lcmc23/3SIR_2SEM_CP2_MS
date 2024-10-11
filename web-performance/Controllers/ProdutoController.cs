@@ -30,20 +30,25 @@ namespace web_performance.Controllers
         public async Task<ActionResult> GetProdutos()
         {
 
-            string key = "getprodutos";
-            redis = ConnectionMultiplexer.Connect("localhost:6379");
-            IDatabase db = redis.GetDatabase();
-            await db.KeyExpireAsync(key, TimeSpan.FromMinutes(10));
-            string user = await db.StringGetAsync(key);
+            //string key = "getprodutos";
+            //redis = ConnectionMultiplexer.Connect("localhost:6379");
+            //IDatabase db = redis.GetDatabase();
+            //await db.KeyExpireAsync(key, TimeSpan.FromMinutes(10));
+            //string user = await db.StringGetAsync(key);
 
-            if (!string.IsNullOrEmpty(user))
-            {
-                return Ok(user);
-            }
+            //if (!string.IsNullOrEmpty(user))
+            //{
+            //    return Ok(user);
+            //}
 
             var produtos = await _repository.ListarProdutos();
+            if (produtos == null)
+            {
+                return NotFound();
+            }
+
             string produtosJson = JsonConvert.SerializeObject(produtos);
-            await db.StringSetAsync(key, produtosJson);
+            //await db.StringSetAsync(key, produtosJson);
 
             return Ok(produtos);
         }
@@ -53,15 +58,13 @@ namespace web_performance.Controllers
         {
             await _repository.SalvarProduto(produto);
 
-            await _repository.AtualizarProduto(produto);
-
             //apagar cache
-            string key = "getprodutos";
-            redis = ConnectionMultiplexer.Connect("localhost:6379");
-            IDatabase db = redis.GetDatabase();
-            await db.KeyDeleteAsync(key);
+            //string key = "getprodutos";
+            //redis = ConnectionMultiplexer.Connect("localhost:6379");
+            //IDatabase db = redis.GetDatabase();
+            //await db.KeyDeleteAsync(key);
 
-            return Ok();
+            return Ok(new { mensagem = "Criado com sucesso" });
         }
 
         [HttpPut]
