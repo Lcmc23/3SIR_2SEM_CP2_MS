@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Produtos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        
+        .btn-outline-primary {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Lista de Produtos</h2>
+        <ul class="list-group" id="produtoList"></ul>
+    </div>
+
+    <!-- Botão para Cadastro de Produto -->
+    <a href="cadastro.html" class="btn btn-outline-primary">Voltar</a>
+
+    <script>
+        function loadProdutos() {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const produtoList = document.getElementById('produtoList');
+            produtoList.innerHTML = ''; // Limpa a lista
+
+            produtos.forEach(produto => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('list-group-item');
+                listItem.textContent = `Nome do produto: ${produto.name} | Preço: ${produto.preco}  | Quantidade em estoque: ${produto.quantidade} | Data de cadastro: ${produto.data}`;
+                produtoList.appendChild(listItem);
+            });
+        }
+
+        // Carrega a lista de Produtos ao iniciar
+        loadProdutos();
+    </script>
+</body>
+</html>
