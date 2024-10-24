@@ -10,4 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\web-app-domain\web-app-domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
+  </ItemGroup>
 </Project>
